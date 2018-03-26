@@ -25,10 +25,10 @@
     <div class="order-list-table">
       <table>
         <tr>
-          <th v-for="item in tableHeads" :key="item.id">{{item.label}}</th>
+          <th v-for="head in tableHeads" :key="head.id" @click="changeOrder(head)" :class="{active:head.active}">{{head.label}}</th>
         </tr>
-        <tr>
-          <!-- <td v-for="item in tableData" :key="item.id">{{item}}</td> -->
+        <tr v-for="item in tableData" :key="item.id">
+          <td v-for="head in tableHeads" :key="head.id">{{item[head.key]}}</td>
         </tr>
       </table>
     </div>
@@ -131,6 +131,9 @@ export default {
       },(err)=>{
         console.log(err)
       })
+    },
+    changeOrder(headItem){
+
     }
   },
   mounted(){
