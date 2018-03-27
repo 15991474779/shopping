@@ -114,7 +114,7 @@
             type="text"
             :style="styleObj"
             :readonly="readonly"
-            v-model="value"
+            v-model="showValue"
             @click="show = !show">
         <div class="picker-wrap" v-show="show">
             <table class="date-picker">
@@ -153,18 +153,18 @@
         props: {
             width: { type: String, default: '238px' },
             readonly: { type: Boolean, default: false },
-            // value: { type: String, default: '' },
+            value: { type: String, default: '' },
             format: { type: String, default: 'YYYY-MM-DD' },
-            styleObj: { type: Object, default: null }
+            styleObj: {type: Object, default: null}
         },
         data () {
             return {
                 show: false,
+                showValue: '',
                 days: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
                 months: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
                 date: [],
-                now: new Date(),
-                value:''
+                now: new Date()
             };
         },
         watch: {
@@ -232,7 +232,8 @@
             pickDate (index) {
                 this.show = false;
                 this.now = new Date(this.date[index].time);
-                this.value = this.stringify();
+                this.showValue = this.stringify();
+                this.$emit('on-change', this.showValue);
             },
             parse (str) {
                 var time = new Date(str);
@@ -262,7 +263,7 @@
                 }
             }
         },
-        ready () {
+        mounted () {
             this.now = this.parse(this.value) || new Date();
             document.addEventListener('click', this.leave, false);
         },

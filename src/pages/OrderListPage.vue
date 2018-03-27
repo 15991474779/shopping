@@ -9,12 +9,12 @@
 
       <div class="order-list-option">
         开始日期：
-        <v-date-picker @change="changeStartDate"></v-date-picker>
+        <v-date-picker @on-change="changeStartDate"></v-date-picker>
       </div>
 
       <div class="order-list-option">
         结束日期：
-        <v-date-picker @change="changeEndDate"></v-date-picker>
+        <v-date-picker @on-change="changeEndDate"></v-date-picker>
       </div>
 
       <div class="order-list-option">
@@ -25,7 +25,9 @@
     <div class="order-list-table">
       <table>
         <tr>
-          <th v-for="head in tableHeads" :key="head.id" @click="changeOrder(head)" :class="{active:head.active}">{{head.label}}</th>
+          <th v-for="head in tableHeads" :key="head.id" @click="changeOrderType(head)" :class="{active:head.active}">
+            {{head.label}}
+          </th>
         </tr>
         <tr v-for="item in tableData" :key="item.id">
           <td v-for="head in tableHeads" :key="head.id">{{item[head.key]}}</td>
@@ -98,46 +100,58 @@ export default {
           key: 'amount'
         }
       ],
+      currentOrder: 'asc',
       tableData:[]
     }
   },
   watch: {
     query(){
-      this.getTableData()
+      this.getList()
     }
   },
   methods: {
     productChange (obj) {
-      this.productId=obj
-      this.getTableData()
+      this.productId=obj.value
+      this.getList()
     },
     changeStartDate(date){
       this.startDate=date
-      this.getTableData()
+      this.getList()
     },
     changeEndDate(date){
       this.endDate=date
-      this.getTableData()
+      this.getList()
     },
-    getTableData(){
-      let reqParam={
+    getList(){
+      let reqParams={
         query:this.query,
         productId:this.productId,
         startDate:this.startDate,
         endDate:this.endDate
       }
-      this.$http.post('./api/getOrderList',reqParam).then((data)=>{
+      this.$http.post('./api/getOrderList',reqParams).then((data)=>{
         this.tableData=data.body.list
       },(err)=>{
         console.log(err)
       })
     },
-    changeOrder(headItem){
-
+    changeOrderType(headItem){
+      this.tableHeads.map((item)=>{
+        item.active=false
+        return item
+      })
+      headItem.active=true
+      if (this.currentOrder === 'asc') {
+        this.currentOrder = 'desc'
+      }
+      else if (this.currentOrder === 'desc') {
+        this.currentOrder = 'asc'
+      }
+      this.tableData = _.orderBy(this.tableData, headItem.key, this.currentOrder)
     }
   },
   mounted(){
-    this.getTableData()
+    this.getList()
   }
 }
 </script>
